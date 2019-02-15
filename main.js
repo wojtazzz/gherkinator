@@ -1,9 +1,9 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const parser = require('./parser')
 
-
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const { app, BrowserWindow, Menu, ipcMain } = electron;
 
 
 // Set environment process
@@ -13,8 +13,10 @@ let mainWindow;
 let addWindow;
 
 // Listen for app to be ready
-app.on('ready', function(){
-    
+app.on('ready', function () {
+
+    let text = parser.parseSteps();
+    console.log(text);
     mainWindow = new BrowserWindow({});
 
     // file://dirname/mainWIndow.html
@@ -25,7 +27,7 @@ app.on('ready', function(){
     }));
 
     //Quit app when closed
-    mainWindow.on('closed', function(){
+    mainWindow.on('closed', function () {
         app.quit();
     })
 
@@ -36,7 +38,7 @@ app.on('ready', function(){
 })
 
 //Handle create add window
-function createAddWindow(){
+function createAddWindow() {
 
     addWindow = new BrowserWindow({
         height: 200,
@@ -51,15 +53,15 @@ function createAddWindow(){
     }));
 
     //Garbage collection handle
-    addWindow.on('close', function(){
-        addWindow = null;        
+    addWindow.on('close', function () {
+        addWindow = null;
     })
-    
+
 }
 
 // Catch item:add
 
-ipcMain.on("item:add", function(e, item){
+ipcMain.on("item:add", function (e, item) {
     console.log(item);
     mainWindow.webContents.send('item:add', item);
     addWindow.close();
@@ -71,21 +73,21 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Add step',
-                click(){
+                click() {
                     createAddWindow();
                 }
             },
             {
                 label: 'Clear steps',
-                click(){
+                click() {
                     mainWindow.webContents.send('item:clear');
                 }
-                
+
             },
             {
                 label: 'Quit',
                 accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
-                click(){
+                click() {
                     app.quit();
                 }
             }
@@ -94,19 +96,19 @@ const mainMenuTemplate = [
 ];
 
 // If mac, add empty object to menu
-if(process.platform == 'darwin'){
+if (process.platform == 'darwin') {
     mainMenuTemplate.unshift({});
 }
 
 // Add developer tools item if not on prod
-if(process.env.NODE_ENV != 'production'){
+if (process.env.NODE_ENV != 'production') {
     mainMenuTemplate.push({
         label: 'Dev Tools',
         submenu: [
             {
                 label: 'Toggle DevTools',
                 accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
-                click(item, focusedWindow){
+                click(item, focusedWindow) {
                     focusedWindow.toggleDevTools();
                 }
             },

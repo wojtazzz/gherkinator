@@ -24,11 +24,15 @@
             </form>
         </div>
         <h4>Search results:</h4>
-        <div id="searchResults"></div>
+        <div id="searchResults" style="overflow-y: scroll; overflow-x: hidden; max-height: 400px;">
+            <div id="container">
 
+            </div>
+        </div>
         <h4>Steps:</h4>
         <ul id="selectedSteps"></ul>
     </div>
+
 
 
     <script>
@@ -105,7 +109,6 @@
             const firstHit = results[0].definition;
             console.info("All results", results);
             addStep(firstHit);
-
         }
 
         // Handle results click
