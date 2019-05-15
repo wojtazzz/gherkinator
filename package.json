@@ -15,6 +15,10 @@
     "electron": "^4.0.0",
     "fuse.js": "^3.3.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wojtazzz/gherkinator.git"
+  },
   "devDependencies": {
     "electron-packager": "^13.0.1"
   }

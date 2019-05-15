@@ -1,4 +1,6 @@
 var fs = require('fs');
+const appConfig = require('./config')
+
 
 // make Promise version of fs.readdir()
 fs.readdirAsync = function (dirname) {
@@ -34,7 +36,7 @@ function getFile(filename) {
 
 
 async function parseStepsAsync() {
-    let file = await fs.readFileAsync("C:\\Users\\wfijarcz.INGRNET\\Documents\\bdd\\Tests\\scripts\\shared_steps\\steps_apps\\roading_steps.py", 'utf8');
+    let file = await fs.readFileAsync(appConfig['stepsFile']);
 
     let lines = file.toString().split("\n");
     return lines[6];
@@ -49,7 +51,8 @@ function storeStepsFile(json) {
 
 function parseSteps() {
 
-    const folder = "C:\\Users\\wfijarcz.INGRNET\\Documents\\bdd\\Tests\\scripts\\shared_steps\\steps_apps\\";
+    const folder = appConfig.stepsFolder;
+
 
     fs.unlink('./steps.json', (err) => {
         if (err) console.log('No steps file');
@@ -62,24 +65,40 @@ function parseSteps() {
     files.forEach(fileName => {
         let file = fs.readFileSync(folder + fileName, 'utf8');
         let lines = file.toString().split("\n");
-        let steps = lines.filter(line => line.includes("@")).map(line => line.replace('(', '').replace(')', '').split('"'));
+        
+        let steps = lines.filter(line => line.includes("^"))
+            .map(line => 
+                ({
+                     type: getSubstringToChar(line, '('),
+                     definition: getSubstring(line, '^', '$')
+                })
+            );
 
         steps.forEach(function (step) {
+            
             stepObjects.push({
-                "definition": step[1],
-                "app": "roading_steps",
-                "type": [
-                    step[0]
-                ]
+                "definition": step['definition'],
+                "category": fileName,
+                "type": step['type']
             })
         });
     })
 
-
+    console.log(stepObjects);
     storeStepsFile(JSON.stringify(stepObjects));
 
     return stepObjects;
 }
 
+function getSubstringToChar(string, endChar) {
+    return string.substring(0, string.indexOf(endChar));
+}
+
+function getSubstring(string, startChar, endChar) {
+    return string.substring(
+        string.indexOf(startChar) + 1,
+        string.lastIndexOf(endChar)
+    );
+}
 
 module.exports.parseSteps = parseSteps;
